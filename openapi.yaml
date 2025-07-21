@@ -1,0 +1,98 @@
+openapi: 3.1.0
+
+info:
+  title: "Neurasita: Dokumentasi API"
+  version: 1.0.0-dev
+  description: |
+    Description
+servers:
+  - url: "http://{HOST}/{PORT}/api/v1"
+    variables:
+      HOST:
+        default: 127.0.0.1
+      PORT:
+        default: "3000"
+    description: Development server
+  - url: "https://neurasita.id/api/v1"
+
+tags:
+  - name: Authentication
+  - name: Users
+  - name: Plants
+  - name: Diseases
+  - name: Dataset
+  - name: Image Classification
+  - name: Hello World
+paths:
+  /auth/sign-up:
+    post:
+      summary: Mendaftar sebagai user baru
+      description: Mendaftar sebagai user baru
+      tags:
+        - Users
+        - Authentication
+
+  /auth/sign-in:
+    post:
+      summary: Sign In user
+      description: Sign In user
+      tags:
+        - Users
+        - Authentication
+
+  /auth/refreh:
+    post:
+      summary: Refresh access token
+      description: Refresh access token
+      tags:
+        - Users
+        - Authentication
+
+  /users:
+    get:
+      tags:
+        - Users
+      summary: Mendapatkan daftar (list) user
+
+  /users/{id}:
+    get:
+      tags:
+        - Users
+      summary: Detail satu user berdasarkan id (uuid)
+
+    delete:
+      tags:
+        - Users
+      summary: Menghapus satu user berdasarkan id (uuid)
+
+  /users/{id}/password:
+    put:
+      tags:
+        - Authentication
+        - Users
+      summary: Mengganti password user
+
+  /users/{id}/email:
+    put:
+      tags:
+        - Authentication
+        - Users
+      summary: Mengganti email user
+
+  /hello-world:
+    get:
+      summary: Hello world!
+      description: Hello world!
+      tags:
+        - Hello World
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  hello:
+                    type: string
+                    example: world!
