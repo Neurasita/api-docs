@@ -18,11 +18,13 @@ servers:
 tags:
   - name: Authentication
   - name: Users
+  - name: Profiles
   - name: Plants
   - name: Diseases
   - name: Dataset
   - name: Image Classification
   - name: Hello World
+
 paths:
   /auth/sign-up:
     post:
@@ -31,6 +33,17 @@ paths:
       tags:
         - Users
         - Authentication
+      requestBody:
+        $ref: "#/components/requestBodies/SignRequest"
+      responses:
+        200:
+          $ref: "#/components/responses/CreateSuccess"
+        400:
+          $ref: "#/components/responses/ErrorMalformedRequest"
+        422:
+          $ref: "#/components/responses/ErrorValidation"
+        500:
+          $ref: "#/components/responses/ErrorInternal"
 
   /auth/sign-in:
     post:
@@ -39,6 +52,8 @@ paths:
       tags:
         - Users
         - Authentication
+      requestBody:
+        $ref: "#/components/requestBodies/SignRequest"
 
   /auth/refreh:
     post:
@@ -79,6 +94,28 @@ paths:
         - Users
       summary: Mengganti email user
 
+  /users/{id}/profiles:
+    post:
+      tags:
+        - Users
+        - Profiles
+      summary: Create new user profile
+      description: Create new user profile
+
+    get:
+      tags:
+        - Users
+        - Profiles
+      summary: Get user profile by id
+      description: Get user profile by id
+
+    put:
+      tags:
+        - Users
+        - Profiles
+      summary: Update user profile
+      description: Update user profile
+
   /hello-world:
     get:
       summary: Hello world!
@@ -96,3 +133,143 @@ paths:
                   hello:
                     type: string
                     example: world!
+
+components:
+  schemas:
+    BaseResponseSuccess:
+      type: object
+      properties:
+        accessed_at:
+          $ref: "#/components/schemas/DateTime"
+        success:
+          type: boolean
+          default: true
+
+    BaseResponseError:
+      type: object
+      properties:
+        accessed_at:
+          $ref: "#/components/schemas/DateTime"
+        success:
+          type: boolean
+          default: false
+
+    UUID:
+      type: string
+      format: uuid
+
+    Email:
+      type: string
+      format: email
+
+    Password:
+      type: string
+      format: password
+
+    JWTToken:
+      type: string
+      example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiZTg3YmRmZTgtNjY4MC00ZGI2LTliNDAtNjY1NmMyMjM3YjM1IiwibmFtZSI6IkZpeHlDb2RlciIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTcyMTUxMzYwMCwiZXhwIjoxNzIxNTE3MjAwfQ.rnQ1Iu5E4rAsWm7_nUoI9pb0nDrr6VuSr7cYF3Ox5uY
+
+    DateTime:
+      type: string
+      format: date-time
+
+  requestBodies:
+    SignRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                $ref: "#/components/schemas/Email"
+              password:
+                $ref: "#/components/schemas/Password"
+  responses:
+    CreateSuccess:
+      description: body jika sign up berhasil
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/BaseResponseSuccess"
+              - type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      users:
+                        type: object
+                        properties:
+                          id:
+                            $ref: "#/components/schemas/UUID"
+                          created_at:
+                            $ref: "#/components/schemas/DateTime"
+
+    ErrorInternal:
+      description: Internal error response
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/BaseResponseError"
+              - type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      error:
+                        type: object
+                        properties:
+                          message:
+                            type: string
+                            default: internal server error
+
+    ErrorValidation:
+      description: Validation error response
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/BaseResponseError"
+              - type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      error:
+                        type: object
+                        properties:
+                          message:
+                            type: string
+                            default: validation error
+                          detail:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                field:
+                                  type: string
+                                  example: email
+                                violation:
+                                  type: string
+                                  example: email harus berupa alamat email yang valid
+
+    ErrorMalformedRequest:
+      description: Malformed request body
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/BaseResponseError"
+              - type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      error:
+                        type: object
+                        properties:
+                          message:
+                            type: string
+                            default: malformed request body
