@@ -116,6 +116,96 @@ paths:
       summary: Update user profile
       description: Update user profile
 
+  /plants:
+    get:
+      deprecated: false
+      tags:
+        - Plants
+    post:
+      deprecated: false
+      tags:
+        - Plants
+
+  /plants/{id}:
+    get:
+      deprecated: false
+      tags:
+        - Plants
+
+    put:
+      deprecated: false
+      tags:
+        - Plants
+
+    delete:
+      deprecated: false
+      tags:
+        - Plants
+
+  /diseases:
+    get:
+      deprecated: false
+      tags:
+        - Diseases
+    post:
+      deprecated: false
+      tags:
+        - Diseases
+
+  /diseases/{id}:
+    get:
+      deprecated: false
+      tags:
+        - Diseases
+
+    put:
+      deprecated: false
+      tags:
+        - Diseases
+
+    delete:
+      deprecated: false
+      tags:
+        - Diseases
+
+  /dataset/ic:
+    get:
+      deprecated: false
+      tags:
+        - Dataset
+        - Image Classification
+
+  /dataset/ic/{id}:
+    get:
+      deprecated: false
+      tags:
+        - Dataset
+        - Image Classification
+
+    put:
+      deprecated: false
+      tags:
+        - Dataset
+        - Image Classification
+
+    delete:
+      deprecated: false
+      tags:
+        - Dataset
+        - Image Classification
+
+  /files:
+    post:
+      deprecated: false
+
+  /files/{id}:
+    get:
+      deprecated: false
+    put:
+      deprecated: false
+    delete:
+      deprecated: false
+
   /hello-world:
     get:
       summary: Hello world!
