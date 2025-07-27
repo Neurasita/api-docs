@@ -1,5 +1,4 @@
 openapi: 3.1.0
-
 info:
   title: "Neurasita: Dokumentasi API"
   version: 1.0.0-dev
@@ -14,7 +13,6 @@ servers:
         default: "3000"
     description: Development server
   - url: "https://neurasita.id/api/v1"
-
 tags:
   - name: Authentication
   - name: Users
@@ -54,6 +52,15 @@ paths:
         - Authentication
       requestBody:
         $ref: "#/components/requestBodies/SignRequest"
+      responses:
+        200:
+          $ref: "#/components/responses/SignInSuccess"
+        400:
+          $ref: "#/components/responses/ErrorMalformedRequest"
+        401:
+          $ref: "#/components/responses/ErrorInvalidEmailOrPassword"
+        500:
+          $ref: "#/components/responses/ErrorInternal"
 
   /auth/refreh:
     post:
@@ -62,6 +69,17 @@ paths:
       tags:
         - Users
         - Authentication
+      requestBody:
+        $ref: "#/components/requestBodies/RefreshTokenRequest"
+      responses:
+        200:
+          $ref: "#/components/responses/RefreshTokenSuccess"
+        400:
+          $ref: "#/components/responses/ErrorMalformedRequest"
+        401:
+          $ref: "#/components/responses/ErrorInvalidEmailOrPassword"
+        500:
+          $ref: "#/components/responses/ErrorInternal"
 
   /users:
     get:
@@ -258,13 +276,57 @@ components:
 
     JWTToken:
       type: string
-      example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiZTg3YmRmZTgtNjY4MC00ZGI2LTliNDAtNjY1NmMyMjM3YjM1IiwibmFtZSI6IkZpeHlDb2RlciIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTcyMTUxMzYwMCwiZXhwIjoxNzIxNTE3MjAwfQ.rnQ1Iu5E4rAsWm7_nUoI9pb0nDrr6VuSr7cYF3Ox5uY
+      description: JWT token (always unique)
+      example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9....
 
     DateTime:
       type: string
       format: date-time
 
+    Plant:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/UUID"
+
+        scientific_name:
+          type: string
+          example: Oryza sativa
+
+        indonesia_name:
+          type: string
+          example: Padi
+
+        english_name:
+          type: string
+          example: Rice
+
+        description:
+          type: string
+
+    Disease:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/UUID"
+
+        scientific_name:
+          type: string
+          example: Oryza sativa
+
+        indonesia_name:
+          type: string
+          example: Padi
+
+        english_name:
+          type: string
+          example: Rice
+
   requestBodies:
+    # Request for signin and signup
+    # hanya butuh satu karena bentuk requestnya sama
+    # mungkin bisa dikembangkan kembali atau dipisah
+    # jika suatu saat ada field tambahan
     SignRequest:
       content:
         application/json:
@@ -275,6 +337,16 @@ components:
                 $ref: "#/components/schemas/Email"
               password:
                 $ref: "#/components/schemas/Password"
+
+    RefreshTokenRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              refresh_token:
+                $ref: "#components/schemas/JWTToken"
+
   responses:
     CreateSuccess:
       description: body jika sign up berhasil
@@ -295,6 +367,44 @@ components:
                             $ref: "#/components/schemas/UUID"
                           created_at:
                             $ref: "#/components/schemas/DateTime"
+
+    SignInSuccess:
+      description: body jika sign in berhasil
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/BaseResponseSuccess"
+              - type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      tokens:
+                        type: object
+                        properties:
+                          access_token:
+                            $ref: "#/components/schemas/JWTToken"
+                          refresh_token:
+                            $ref: "#/components/schemas/JWTToken"
+
+    RefreshTokenSuccess:
+      description: body jika refresh token berhasil akan mendapatkan access token baru
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/BaseResponseSuccess"
+              - type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      tokens:
+                        type: object
+                        properties:
+                          access_token:
+                            $ref: "#/components/schemas/JWTToken"
 
     ErrorInternal:
       description: Internal error response
@@ -363,3 +473,22 @@ components:
                           message:
                             type: string
                             default: malformed request body
+
+    ErrorInvalidEmailOrPassword:
+      description: Email atau password salah
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/BaseResponseError"
+              - type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      error:
+                        type: object
+                        properties:
+                          message:
+                            type: string
+                            default: email atau password salah
